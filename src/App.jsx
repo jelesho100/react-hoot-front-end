@@ -38,6 +38,19 @@ const App = () => {
     navigate('/hoots');
   };
 
+const handleDeleteHoot = async (hootId) => {
+    const deletedHoot = await hootService.deleteHoot(hootId);
+    // Filter state using deletedHoot._id:
+    setHoots(hoots.filter((hoot) => hoot._id !== deletedHoot._id));
+    navigate('/hoots');
+  };
+
+const handleUpdateHoot = async (hootId, hootFormData) => {
+  const updatedHoot = await hootService.update(hootId, hootFormData);
+  setHoots(hoots.map((hoot) => (hootId === hoot._id ? updatedHoot : hoot)));
+  navigate(`/hoots/${hootId}`);
+};
+
   return (
     <>
       <NavBar />
@@ -45,15 +58,20 @@ const App = () => {
         <Route path='/' element={user ? <Dashboard /> : <Landing />} />
         {user ? (
           <>
-            {/* Protected routes (available only to signed-in users) */}
-            <Route path='/hoots' element={<HootList hoots={hoots} />} />
-            <Route
+            {/* Protected Routes (available only to signed-in users) */}
+            <Route path='/hoots' element={<HootList hoots={hoots}/>} />
+            <Route 
               path='/hoots/:hootId'
-              element={<HootDetails />}
+              element={<HootDetails handleDeleteHoot={handleDeleteHoot}/>}
             />
-            <Route
-              path='/hoots/new'
+            <Route 
+              path='/hoots/new' 
               element={<HootForm handleAddHoot={handleAddHoot} />}
+            />
+            {/* Add this route! */}
+            <Route
+              path='/hoots/:hootId/edit'
+              element={<HootForm handleUpdateHoot={handleUpdateHoot}/>}
             />
           </>
         ) : (
